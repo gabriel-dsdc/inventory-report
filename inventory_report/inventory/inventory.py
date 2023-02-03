@@ -1,47 +1,19 @@
-import csv
-import json
-import xmltodict
-from abc import ABC, abstractmethod
 from typing import Literal
+from inventory_report.importer.csv_importer import CsvImporter
+from inventory_report.importer.json_importer import JsonImporter
+from inventory_report.importer.xml_importer import XmlImporter
 from inventory_report.reports.simple_report import SimpleReport
 from inventory_report.reports.complete_report import CompleteReport
-
-
-class AbstractImport(ABC):
-    @abstractmethod
-    def read_file(self, path: str):
-        pass
-
-
-class CSVImport(AbstractImport):
-    @classmethod
-    def read_file(self, path: str):
-        with open(path, mode="r") as csvfile:
-            csv_reader = csv.DictReader(csvfile)
-            return [row for row in csv_reader]
-
-
-class JSONImport(AbstractImport):
-    @classmethod
-    def read_file(self, path: str):
-        with open(path, mode="r") as jsonfile:
-            json_reader = json.load(jsonfile)
-            return [row for row in json_reader]
-
-
-class XMLImport(AbstractImport):
-    @classmethod
-    def read_file(self, path: str):
-        with open(path, mode="r") as xmlfile:
-            xml_reader = xmltodict.parse(xmlfile.read())
-            return [row for row in xml_reader["dataset"]["record"]]
 
 
 class Inventory:
     @classmethod
     def import_data(self, path: str, type: Literal["simples", "completo"]):
         file_extension = path.split(".")[-1]
-        file_types = {"csv": CSVImport, "json": JSONImport, "xml": XMLImport}
+        file_types = {
+            "csv": CsvImporter,
+            "json": JsonImporter,
+            "xml": XmlImporter}
         products = file_types[file_extension].read_file(path)
 
         if type == "simples":
