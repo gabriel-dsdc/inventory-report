@@ -14,7 +14,7 @@ class Inventory:
             "csv": CsvImporter,
             "json": JsonImporter,
             "xml": XmlImporter}
-        products = file_types[file_extension].read_file(path)
+        products = file_types[file_extension].import_data(path)
 
         if type == "simples":
             return SimpleReport.generate(products)
