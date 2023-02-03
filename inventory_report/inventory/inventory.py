@@ -1,5 +1,6 @@
 import csv
 import json
+import xmltodict
 from abc import ABC, abstractmethod
 from typing import Literal
 from inventory_report.reports.simple_report import SimpleReport
@@ -28,11 +29,19 @@ class JSONImport(AbstractImport):
             return [row for row in json_reader]
 
 
+class XMLImport(AbstractImport):
+    @classmethod
+    def read_file(self, path: str):
+        with open(path, mode="r") as xmlfile:
+            xml_reader = xmltodict.parse(xmlfile.read())
+            return [row for row in xml_reader["dataset"]["record"]]
+
+
 class Inventory:
     @classmethod
     def import_data(self, path: str, type: Literal["simples", "completo"]):
         file_extension = path.split(".")[-1]
-        file_types = {"csv": CSVImport, "json": JSONImport}
+        file_types = {"csv": CSVImport, "json": JSONImport, "xml": XMLImport}
         products = file_types[file_extension].read_file(path)
 
         if type == "simples":
